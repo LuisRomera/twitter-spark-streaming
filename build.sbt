@@ -1,8 +1,13 @@
 name := "twitter-spark-streaming"
 
-version := "0.1"
+version := "1.0.0"
 
 scalaVersion := "2.12.12"
+
+mainClass in assembly := Some("org.luis.spark.ApplicationInit")
+
+assemblyJarName in assembly := "twitter-spark-streaming.jar"
+
 
 // Dependencies
 val sparkVersion = "3.0.0"
@@ -16,3 +21,9 @@ libraryDependencies ++= Seq(
   "org.slf4j" % "slf4j-simple" % slf4jVersion,
   "org.twitter4j" % "twitter4j-stream" % twitterStreamVersion
 )
+
+assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false)
+assemblyMergeStrategy in assembly :=  {
+  case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+  case x => MergeStrategy.first
+}

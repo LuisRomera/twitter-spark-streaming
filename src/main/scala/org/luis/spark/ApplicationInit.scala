@@ -1,7 +1,6 @@
 package org.luis.spark
 
 import org.apache.spark.SparkConf
-import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.luis.spark.receiver.{SecretsKey, TwitterReceiver}
 
