@@ -11,9 +11,19 @@ import org.apache.spark.streaming.receiver.Receiver
 import twitter4j.{FilterQuery, StallWarning, Status, StatusDeletionNotice, StatusListener, TwitterStream, TwitterStreamFactory}
 import twitter4j.conf.ConfigurationBuilder
 
-class TwitterReceiver(secretsKey: SecretsKey, words: Seq[String]) extends Receiver[String](StorageLevel.MEMORY_AND_DISK_2) with Logging{
-//
-//  private final val log = LoggerFactory.getLogger(getClass)
+/**
+ * Creates a new FilterQuery
+ *
+ * @param secretsKey Twitter API secrets.
+ * @param count      Indicates the number of previous statuses to stream before transitioning to the live stream.
+ * @param follow     Specifies the users, by ID, to receive public tweets from.
+ * @param track      Specifies keywords to track.
+ * @param locations  Specifies the locations to track. 2D array
+ */
+
+class TwitterReceiver(secretsKey: SecretsKey, count: Integer = null, follow: Seq[Long] = Array(0L),
+                      track: Seq[String] = Seq(), locations: Array[Array[Double]] = Array(Array()))
+  extends Receiver[String](StorageLevel.MEMORY_AND_DISK_2) with Logging {
 
 
   var printWriter: PrintWriter = _
@@ -28,16 +38,16 @@ class TwitterReceiver(secretsKey: SecretsKey, words: Seq[String]) extends Receiv
     val gson = new Gson()
 
 
-    val configurationBuilder: ConfigurationBuilder = new ConfigurationBuilder()
+    val configurationBuilder = new ConfigurationBuilder()
     configurationBuilder.setOAuthConsumerKey(secretsKey.consumerKey)
       .setOAuthConsumerSecret(secretsKey.consumerSecret)
       .setOAuthAccessToken(secretsKey.token)
       .setOAuthAccessTokenSecret(secretsKey.tokenSecret)
       .setJSONStoreEnabled(true)
 
-    val twitterStream: TwitterStream = (new TwitterStreamFactory(configurationBuilder.build())).getInstance()
+    val twitterStream = new TwitterStreamFactory(configurationBuilder.build()).getInstance()
 
-    val listener: StatusListener = new StatusListener {
+    val listener = new StatusListener {
       override def onStatus(status: Status): Unit = {
         store(gson.toJson(status))
       }
@@ -65,8 +75,13 @@ class TwitterReceiver(secretsKey: SecretsKey, words: Seq[String]) extends Receiv
 
     twitterStream.addListener(listener)
 
-    val query: FilterQuery = new FilterQuery()
-    query.track(words.mkString(","))
+    // Filters
+    val query = new FilterQuery()
+    if (count != null) query.count(count)
+    if (follow != null) query.follow(follow.toArray)
+    if (track != null) query.track(track.toArray)
+    if (track != null) query.locations(locations)
+
     twitterStream.filter(query)
   }
 

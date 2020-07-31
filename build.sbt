@@ -11,7 +11,7 @@ assemblyJarName in assembly := "twitter-spark-streaming.jar"
 
 // Dependencies
 val sparkVersion = "3.0.0"
-val twitterStreamVersion = "4.0.7"
+val twitterStreamVersion = "3.0.3"
 val slf4jVersion = "1.7.30"
 
 libraryDependencies ++= Seq(
@@ -21,6 +21,7 @@ libraryDependencies ++= Seq(
   "org.slf4j" % "slf4j-simple" % slf4jVersion,
   "org.twitter4j" % "twitter4j-stream" % twitterStreamVersion
 )
+
 
 assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false)
 assemblyMergeStrategy in assembly :=  {

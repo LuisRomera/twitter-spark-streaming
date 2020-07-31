@@ -7,25 +7,23 @@ import org.luis.spark.receiver.{SecretsKey, TwitterReceiver}
 object ApplicationInit {
 
   def main(args: Array[String]): Unit = {
-    val secretsKey = SecretsKey("XXXX", "XXXX", "XXXX-XXXX", "XXXX")
-    val words = Seq("Amazon", "Google", "Apple")
-
-    val conf = new SparkConf().setMaster("local[2]").setAppName("NetworkWordCount")
+    val secretsKey = SecretsKey("XXXXXXXXXXXXXXXXXx", "XXXXXXXXXXXXXXXXXXXXx", "XXXXXX-XXXXXXXXXXXXXXXXXXXXXx",
+      "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx")
 
 
+    val conf = new SparkConf().setMaster("local[48]").setAppName("NetworkWordCount")
+
+
+    val s: Array[Array[Double]]  = Array(Array())
     val ssc = new StreamingContext(conf, Seconds(1))
-    val twitterApiStream = new TwitterReceiver(secretsKey, words)
 
+    val twitterApiStream = new TwitterReceiver(secretsKey, null, null, Array("RT"))
 
     val customReceiverStream = ssc.receiverStream(twitterApiStream)
-
-//    val words:DStream[String] = customReceiverStream.flatMap(_.split(" "))
-//    words.print()
     customReceiverStream.print()
 
     ssc.start()             // Start the computation
     ssc.awaitTermination()  // Wait for the computation to terminate
-
 
 
   }
