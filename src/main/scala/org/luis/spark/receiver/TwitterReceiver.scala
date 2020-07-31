@@ -18,7 +18,7 @@ import twitter4j.conf.ConfigurationBuilder
  * @param count      Indicates the number of previous statuses to stream before transitioning to the live stream.
  * @param follow     Specifies the users, by ID, to receive public tweets from.
  * @param track      Specifies keywords to track.
- * @param locations  Specifies the locations to track. 2D array
+ * @param locations  Specifies the locations to track. 2D array. val location = Array(Array(30.71623, 0.102697), Array(60.817707,50.102697))
  */
 
 class TwitterReceiver(secretsKey: SecretsKey, count: Integer = null, follow: Seq[Long] = Array(0L),
@@ -80,7 +80,7 @@ class TwitterReceiver(secretsKey: SecretsKey, count: Integer = null, follow: Seq
     if (count != null) query.count(count)
     if (follow != null) query.follow(follow.toArray)
     if (track != null) query.track(track.toArray)
-    if (track != null) query.locations(locations)
+    if (locations != null) query.locations(locations)
 
     twitterStream.filter(query)
   }
