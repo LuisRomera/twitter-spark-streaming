@@ -1,0 +1,68 @@
+version: '3'
+
+services:
+  oracle:
+    image: oracleinanutshell/oracle-xe-11g:latest
+    container_name: oracle
+    environment:
+      DB_SID: "database_test"
+      username: "test"
+      password: "admin"
+    ports:
+      - 1521:1521
+    volumes:
+      - ./.data/oracle:/opt/oracle/oradata
+    networks:
+      - compose-network
+
+  db:
+    image: mysql:5.7.17
+    container_name: mysql
+    ports:
+      - "3307:3306"
+    volumes:
+      - 'mysqldb_data:/var/lib/mysql'
+    networks:
+      default:
+        aliases:
+          - db
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: hortonworks
+      MYSQL_USER: hortonworks
+      MYSQL_PASSWORD: password
+
+
+  registry:
+    image: thebookpeople/hortonworks-registry:latest
+    container_name: schema-registry
+    depends_on:
+      - db
+    ports:
+      - "9090:9090"
+    environment:
+      DB_NAME: hortonworks
+      DB_USER: hortonworks
+      DB_PASSWORD: password
+      DB_PORT: 3306
+      DB_HOST: db
+  hazelcast:
+    image: hazelcast/hazelcast:4.0.1
+    container_name: hazelcast
+    ports:
+      - 5701
+
+  management-center:
+    image: hazelcast/management-center:4.0.3
+    container_name: hazelcast-management
+    environment:
+      - MC_INIT_CMD=./mc-conf.sh cluster add -H=/data -ma hazelcast:5701 -cn dev
+    ports:
+      - 8666:8080
+
+networks:
+  compose-network:
+    driver: bridge
+
+volumes:
+  mysqldb_data:
